@@ -1,4 +1,4 @@
-part of insta_assets_crop;
+part of image_crop;
 
 class ImageOptions {
   final int width;
@@ -22,7 +22,7 @@ class ImageOptions {
 
 class InstaAssetsCrop {
   static const _channel =
-      const MethodChannel('plugins.legoffmael.fr/insta_assets_crop');
+      const MethodChannel('plugins.lykhonis.com/image_crop');
 
   static Future<bool> requestPermissions() => _channel
       .invokeMethod('requestPermissions')

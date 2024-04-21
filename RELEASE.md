@@ -1,4 +1,4 @@
-## Prepare for Release
+****## Prepare for Release
 
 Version format is `v{major}.{minor}.{patch}`. e.g. `v0.1.1`.
 

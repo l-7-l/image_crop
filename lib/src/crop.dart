@@ -1,4 +1,4 @@
-part of insta_assets_crop;
+part of image_crop;
 
 const _kCropGridColumnCount = 3;
 const _kCropGridRowCount = 3;
@@ -799,24 +799,35 @@ class _CropPainter extends CustomPainter {
     }
 
     paint.color = backgroundColor.withOpacity(
-        _kCropOverlayActiveOpacity * active +
-            backgroundColor.opacity * (1.0 - active));
+      _kCropOverlayActiveOpacity * active +
+          backgroundColor.opacity * (1.0 - active),
+    );
+
     final boundaries = Rect.fromLTWH(
       rect.width * area.left,
       rect.height * area.top,
       rect.width * area.width,
       rect.height * area.height,
     );
-    canvas.drawRect(Rect.fromLTRB(0.0, 0.0, rect.width, boundaries.top), paint);
-    canvas.drawRect(
-        Rect.fromLTRB(0.0, boundaries.bottom, rect.width, rect.height), paint);
-    canvas.drawRect(
+    canvas
+      ..drawRect(Rect.fromLTRB(0.0, 0.0, rect.width, boundaries.top), paint)
+      ..drawRect(
+        Rect.fromLTRB(0.0, boundaries.bottom, rect.width, rect.height),
+        paint,
+      )
+      ..drawRect(
         Rect.fromLTRB(0.0, boundaries.top, boundaries.left, boundaries.bottom),
-        paint);
-    canvas.drawRect(
+        paint,
+      )
+      ..drawRect(
         Rect.fromLTRB(
-            boundaries.right, boundaries.top, rect.width, boundaries.bottom),
-        paint);
+          boundaries.right,
+          boundaries.top,
+          rect.width,
+          boundaries.bottom,
+        ),
+        paint,
+      );
 
     if (boundaries.isEmpty == false) {
       _drawGrid(canvas, boundaries);
@@ -834,45 +845,43 @@ class _CropPainter extends CustomPainter {
     // do not show handles if cannot be resized
     if (disableResize) return;
 
-    canvas.drawOval(
-      Rect.fromLTWH(
-        boundaries.left - cropHandleSize / 2,
-        boundaries.top - cropHandleSize / 2,
-        cropHandleSize,
-        cropHandleSize,
-      ),
-      paint,
-    );
-
-    canvas.drawOval(
-      Rect.fromLTWH(
-        boundaries.right - cropHandleSize / 2,
-        boundaries.top - cropHandleSize / 2,
-        cropHandleSize,
-        cropHandleSize,
-      ),
-      paint,
-    );
-
-    canvas.drawOval(
-      Rect.fromLTWH(
-        boundaries.right - cropHandleSize / 2,
-        boundaries.bottom - cropHandleSize / 2,
-        cropHandleSize,
-        cropHandleSize,
-      ),
-      paint,
-    );
-
-    canvas.drawOval(
-      Rect.fromLTWH(
-        boundaries.left - cropHandleSize / 2,
-        boundaries.bottom - cropHandleSize / 2,
-        cropHandleSize,
-        cropHandleSize,
-      ),
-      paint,
-    );
+    canvas
+      ..drawOval(
+        Rect.fromLTWH(
+          boundaries.left - cropHandleSize / 2,
+          boundaries.top - cropHandleSize / 2,
+          cropHandleSize,
+          cropHandleSize,
+        ),
+        paint,
+      )
+      ..drawOval(
+        Rect.fromLTWH(
+          boundaries.right - cropHandleSize / 2,
+          boundaries.top - cropHandleSize / 2,
+          cropHandleSize,
+          cropHandleSize,
+        ),
+        paint,
+      )
+      ..drawOval(
+        Rect.fromLTWH(
+          boundaries.right - cropHandleSize / 2,
+          boundaries.bottom - cropHandleSize / 2,
+          cropHandleSize,
+          cropHandleSize,
+        ),
+        paint,
+      )
+      ..drawOval(
+        Rect.fromLTWH(
+          boundaries.left - cropHandleSize / 2,
+          boundaries.bottom - cropHandleSize / 2,
+          cropHandleSize,
+          cropHandleSize,
+        ),
+        paint,
+      );
   }
 
   void _drawGrid(Canvas canvas, Rect boundaries) {
@@ -884,29 +893,35 @@ class _CropPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
-    final path = Path()
-      ..moveTo(boundaries.left, boundaries.top)
-      ..lineTo(boundaries.right, boundaries.top)
-      ..lineTo(boundaries.right, boundaries.bottom)
-      ..lineTo(boundaries.left, boundaries.bottom)
-      ..lineTo(boundaries.left, boundaries.top);
+    final path = Path();
+    // ..moveTo(boundaries.left, boundaries.top)
+    // ..lineTo(boundaries.right, boundaries.top)
+    // ..lineTo(boundaries.right, boundaries.bottom)
+    // ..lineTo(boundaries.left, boundaries.bottom)
+    // ..lineTo(boundaries.left, boundaries.top);
 
     for (var column = 1; column < _kCropGridColumnCount; column++) {
       path
         ..moveTo(
-            boundaries.left + column * boundaries.width / _kCropGridColumnCount,
-            boundaries.top)
+          boundaries.left + column * boundaries.width / _kCropGridColumnCount,
+          boundaries.top,
+        )
         ..lineTo(
-            boundaries.left + column * boundaries.width / _kCropGridColumnCount,
-            boundaries.bottom);
+          boundaries.left + column * boundaries.width / _kCropGridColumnCount,
+          boundaries.bottom,
+        );
     }
 
     for (var row = 1; row < _kCropGridRowCount; row++) {
       path
-        ..moveTo(boundaries.left,
-            boundaries.top + row * boundaries.height / _kCropGridRowCount)
-        ..lineTo(boundaries.right,
-            boundaries.top + row * boundaries.height / _kCropGridRowCount);
+        ..moveTo(
+          boundaries.left,
+          boundaries.top + row * boundaries.height / _kCropGridRowCount,
+        )
+        ..lineTo(
+          boundaries.right,
+          boundaries.top + row * boundaries.height / _kCropGridRowCount,
+        );
     }
 
     canvas.drawPath(path, paint);
