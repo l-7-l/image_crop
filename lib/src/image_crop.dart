@@ -20,7 +20,7 @@ class ImageOptions {
   String toString() => '$runtimeType(width: $width, height: $height)';
 }
 
-class InstaAssetsCrop {
+class ImageCrop {
   static const _channel =
       const MethodChannel('plugins.lykhonis.com/image_crop');
 
