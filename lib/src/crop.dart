@@ -55,6 +55,10 @@ class Crop extends StatefulWidget {
   /// To initialize the crop view with data programmatically
   final CropInternal? initialParam;
 
+  final void Function(Rect area)? onAreaChange;
+  final void Function(double double)? onScaleChange;
+  final void Function(Rect view)? onViewChange;
+
   const Crop({
     Key? key,
     required this.image,
@@ -67,6 +71,9 @@ class Crop extends StatefulWidget {
     this.placeholderWidget,
     this.onLoading,
     this.initialParam,
+    this.onAreaChange,
+    this.onScaleChange,
+    this.onViewChange,
   }) : super(key: key);
 
   Crop.file(
@@ -82,6 +89,9 @@ class Crop extends StatefulWidget {
     this.placeholderWidget,
     this.onLoading,
     this.initialParam,
+    this.onAreaChange,
+    this.onScaleChange,
+    this.onViewChange,
   })  : image = FileImage(file, scale: scale),
         super(key: key);
 
@@ -99,6 +109,9 @@ class Crop extends StatefulWidget {
     this.placeholderWidget,
     this.onLoading,
     this.initialParam,
+    this.onAreaChange,
+    this.onScaleChange,
+    this.onViewChange,
   })  : image = AssetImage(assetName, bundle: bundle, package: package),
         super(key: key);
 
@@ -119,6 +132,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
   double _ratio = 1.0;
   Rect _view = Rect.zero;
   Rect _area = Rect.zero;
+
   Offset _lastFocalPoint = Offset.zero;
   _CropAction _action = _CropAction.none;
   _CropHandleSide _handle = _CropHandleSide.none;
@@ -160,8 +174,12 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
 
   /// Returns the internal parameters of the state
   /// can be provided using [initialParam] to initialize the view to the same state
-  CropInternal get internalParameters =>
-      CropInternal(view: _view, area: _area, scale: _scale, ratio: _ratio);
+  CropInternal get internalParameters => CropInternal(
+        view: _view,
+        area: _area,
+        scale: _scale,
+        ratio: _ratio,
+      );
 
   @override
   void initState() {
@@ -214,6 +232,24 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
         _deactivate();
       }
     }
+  }
+
+  void _setScale(double next) {
+    if (next == _scale) return;
+    _scale = next;
+    widget.onScaleChange?.call(scale);
+  }
+
+  void _setArea(Rect next) {
+    if (next == _area) return;
+    _area = next;
+    widget.onAreaChange?.call(area!);
+  }
+
+  void _setView(Rect view) {
+    if (view == _view) return;
+    _view = view;
+    widget.onViewChange?.call(view);
   }
 
   void _onLoading(bool isLoading) {
@@ -317,10 +353,10 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
 
   void _settleAnimationChanged() {
     setState(() {
-      _scale = _scaleTween.transform(_settleController.value);
+      _setScale(_scaleTween.transform(_settleController.value));
       final nextView = _viewTween.transform(_settleController.value);
       if (nextView != null) {
-        _view = nextView;
+        _setView(nextView);
       }
     });
   }
@@ -396,7 +432,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
           return;
         }
 
-        _scale = imageInfo.scale;
+        _setScale(imageInfo.scale);
         _ratio = max(
           boundaries.width / image.width,
           boundaries.height / image.height,
@@ -428,6 +464,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
         imageWidth: _image?.width,
         imageHeight: _image?.height,
       );
+
       _view = Rect.fromLTWH(
         (viewWidth - 1.0) / 2,
         (viewHeight - 1.0) / 2,
@@ -437,6 +474,10 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
       // disable initial magnification
       _scale = _minimumScale ?? 1.0;
       _view = _getViewInBoundaries(_scale);
+
+      widget.onViewChange?.call(_view);
+      widget.onScaleChange?.call(_scale);
+      widget.onAreaChange?.call(_area);
     });
   }
 
@@ -650,7 +691,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
     }
 
     setState(() {
-      _area = Rect.fromLTRB(areaLeft, areaTop, areaRight, areaBottom);
+      _setArea(Rect.fromLTRB(areaLeft, areaTop, areaRight, areaBottom));
     });
   }
 
@@ -676,16 +717,29 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
       final dy = delta.dy / boundaries.height;
 
       if (_handle == _CropHandleSide.topLeft) {
-        _updateArea(left: dx, top: dy, cropHandleSide: _CropHandleSide.topLeft);
+        _updateArea(
+          left: dx,
+          top: dy,
+          cropHandleSide: _CropHandleSide.topLeft,
+        );
       } else if (_handle == _CropHandleSide.topRight) {
         _updateArea(
-            top: dy, right: dx, cropHandleSide: _CropHandleSide.topRight);
+          top: dy,
+          right: dx,
+          cropHandleSide: _CropHandleSide.topRight,
+        );
       } else if (_handle == _CropHandleSide.bottomLeft) {
         _updateArea(
-            left: dx, bottom: dy, cropHandleSide: _CropHandleSide.bottomLeft);
+          left: dx,
+          bottom: dy,
+          cropHandleSide: _CropHandleSide.bottomLeft,
+        );
       } else if (_handle == _CropHandleSide.bottomRight) {
         _updateArea(
-            right: dx, bottom: dy, cropHandleSide: _CropHandleSide.bottomRight);
+          right: dx,
+          bottom: dy,
+          cropHandleSide: _CropHandleSide.bottomRight,
+        );
       }
     } else if (_action == _CropAction.moving) {
       final image = _image;
@@ -697,10 +751,10 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
       _lastFocalPoint = details.focalPoint;
 
       setState(() {
-        _view = _view.translate(
+        _setView(_view.translate(
           delta.dx / (image.width * _scale * _ratio),
           delta.dy / (image.height * _scale * _ratio),
-        );
+        ));
       });
     } else if (_action == _CropAction.scaling) {
       final image = _image;
@@ -710,7 +764,7 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
       }
 
       setState(() {
-        _scale = _startScale * details.scale;
+        _setScale(_startScale * details.scale);
 
         final dx = boundaries.width *
             (1.0 - details.scale) /
@@ -719,12 +773,12 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
             (1.0 - details.scale) /
             (image.height * _scale * _ratio);
 
-        _view = Rect.fromLTWH(
+        _setView(Rect.fromLTWH(
           _startView.left + dx / 2,
           _startView.top + dy / 2,
           _startView.width,
           _startView.height,
-        );
+        ));
       });
     }
   }
