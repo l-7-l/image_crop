@@ -12,6 +12,7 @@ Contains all the changes needed in order to work with the `insta_assets_picker` 
 
 - rendering with outer borders removed
 - upgrade flutter android & ios
+- 添加 onAreaChange onScaleChange onViewChange 等回调函数 add onViewChange onScaleChange onAreaChange
 
 > Special thanks to [@LeGoffMael - insta_asset_crop](https://github.com/LeGoffMael/image_crop) and other contributors
 
