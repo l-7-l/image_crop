@@ -25,7 +25,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
+// import io.flutter.plugin.common.PluginRegistry.Registrar;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,11 +57,11 @@ public final class ImageCropPlugin
   /**
    * legacy APIs
    */
-  public static void registerWith(Registrar registrar) {
-    ImageCropPlugin instance = new ImageCropPlugin(registrar.activity());
-    instance.setup(registrar.messenger());
-    registrar.addRequestPermissionsResultListener(instance);
-  }
+  // public static void registerWith(Registrar registrar) {
+  //   ImageCropPlugin instance = new ImageCropPlugin(registrar.activity());
+  //   instance.setup(registrar.messenger());
+  //   registrar.addRequestPermissionsResultListener(instance);
+  // }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -70,8 +70,10 @@ public final class ImageCropPlugin
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    channel.setMethodCallHandler(null);
-    channel = null;
+    if (channel != null) {
+      channel.setMethodCallHandler(null);
+      channel = null;
+    }
   }
 
   @Override
